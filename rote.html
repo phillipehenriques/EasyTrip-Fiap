@@ -7,9 +7,6 @@
     <link rel="shortcut icon" href="imagens/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="style/style.css">
     <title>Easy Trip - Rota</title>
-
-    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3vZ-Uuy_HbBrwIMwWdBh8_GLoyb1FCI8&callback=console.debug&libraries=maps,marker&v=beta">
-    </script>
 </head>
 <body>
     <nav class="shadow-line">
@@ -71,8 +68,8 @@
                 <div class="local-dados" >
                     Cidade de Destino
                     <select id="selecao-estado-destino" name="selecao-estado-destino">
-                        <option value="São Paulo">São Paulo</option>
-                        <option value="Rio de Janeiro" selected>Rio de Janeiro</option>
+                        <option value="São Paulo" selected>São Paulo</option>
+                        <option value="Rio de Janeiro">Rio de Janeiro</option>
                         <option value="Belo Horizonte">Belo Horizonte</option>
                     </select>
                 </div>
@@ -128,8 +125,8 @@
 
         <div class="mapa">
             <!-- <img class="mapa imagem-mapa" src="./imagens/mapa.png" alt=""> -->
-            <gmp-map center="-22.9137295,-43.6107897" zoom="13" map-id="DEMO_MAP_ID">
-                <gmp-advanced-marker position="-22.9137295,-43.6107897" title="My location">
+            <gmp-map id="mapCenter" center="-22.9137295,-43.6107897" zoom="13" map-id="DEMO_MAP_ID">
+                <gmp-advanced-marker id="mapPosition" position="-22.9137295,-43.6107897" title="My location">
                 </gmp-advanced-marker>
               </gmp-map>
             </body>
@@ -138,18 +135,58 @@
     <footer>
         <div>&copy;  EasyCarros -Todos os direitos reservados</div>
     </footer>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3vZ-Uuy_HbBrwIMwWdBh8_GLoyb1FCI8&callback=console.debug&libraries=maps,marker,places&v=beta" async defer>
+    </script>
     <script>
 
-        var rj = '-22.9137295,-43.6107897'
-        var sp = '-23.6814347,-46.92494'
+        var rj = '-22.9100247,-43.1981408'
+        var sp = '-23.5449796,-46.6486327'
         var bh = '-19.9025359,-44.0464509'
 
         const partida = document.getElementById('selecao-estado-partida');
+        const destino = document.getElementById('selecao-estado-destino');
+       
+        partida.addEventListener('change', attMapaOrigem)
+        destino.addEventListener('change', attMapaDestino)
 
-        partida.addEventListener('change', attMapa)
+        function attMapaOrigem(event){
+            var origin = event.target.value;
 
-        function attMapa(event){
-            alert(event.target.value);
+            if(origin == 'São Paulo'){
+                document.getElementById('mapCenter').setAttribute('center', sp);
+                document.getElementById('mapPosition').setAttribute('position', sp);
+            } else if(origin == 'Rio de Janeiro'){
+                document.getElementById('mapCenter').setAttribute('center', rj);
+                document.getElementById('mapPosition').setAttribute('position', rj);
+            } else if (origin == 'Belo Horizonte'){
+                document.getElementById('mapCenter').setAttribute('center', bh);
+                document.getElementById('mapPosition').setAttribute('position', bh);
+            }
+        }
+
+        function attMapaDestino(event) {
+            
+
+            const directionsService = new google.maps.DirectionsService();
+            const directionsRenderer = new google.maps.DirectionsRenderer();
+
+            const origin = partida.value;
+            const destination = event.target.value;
+
+            alert(origin)
+            alert(destination)
+
+            const request = {
+                origin,
+                destination,
+                travelMode: 'DRIVING'
+            };
+
+            directionsService.route(request, function(result, status) {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+                }
+            });
         }
     </script>
 </body>
