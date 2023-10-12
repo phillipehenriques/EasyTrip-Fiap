@@ -123,25 +123,54 @@
 
         </div>
 
-        <div class="mapa">
-            <!-- <img class="mapa imagem-mapa" src="./imagens/mapa.png" alt=""> -->
-            <gmp-map id="mapCenter" center="-22.9137295,-43.6107897" zoom="13" map-id="DEMO_MAP_ID">
-                <gmp-advanced-marker id="mapPosition" position="-22.9137295,-43.6107897" title="My location">
-                </gmp-advanced-marker>
-              </gmp-map>
-            </body>
+        <div id="map" class="mapa">
+            
         </div>
     </div>
     <footer>
         <div>&copy;  EasyCarros -Todos os direitos reservados</div>
     </footer>
-    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3vZ-Uuy_HbBrwIMwWdBh8_GLoyb1FCI8&callback=console.debug&libraries=maps,marker,places&v=beta" async defer>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3vZ-Uuy_HbBrwIMwWdBh8_GLoyb1FCI8&callback=console.debug&libraries=maps,marker,places&v=beta&callback=initMap" async defer>
     </script>
     <script>
 
-        var rj = '-22.9100247,-43.1981408'
-        var sp = '-23.5449796,-46.6486327'
-        var bh = '-19.9025359,-44.0464509'
+        var rj = { lat: -22.9100247, lng: -43.1981408 }
+        var sp = { lat: -23.5449796, lng: -46.6486327 }
+        var bh = { lat: -19.9025359, lng: -44.0464509 }
+
+        var map = {};
+        var marker = {};
+
+        var directionsService = {};
+        var directionsRenderer = {};
+
+        function initMap(){
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer();
+            map = new google.maps.Map(document.getElementById('map'), {
+               center: rj,
+               zoom: 13,
+           });
+           directionsRenderer.setMap(map);
+
+            createMarker(rj);
+        }
+
+        function createMarker(state) {
+            const markerPosition = state;
+            marker = new google.maps.Marker({
+                position: markerPosition,
+                map: map,
+            });
+        }
+
+        function deleteMarker() {
+            marker.setMap(null);
+        }
+
+        function centerMap(state){
+            map.panTo(new google.maps.LatLng(state['lat'], state['lng']));
+        }
 
         const partida = document.getElementById('selecao-estado-partida');
         const destino = document.getElementById('selecao-estado-destino');
@@ -152,29 +181,23 @@
         function attMapaOrigem(event){
             var origin = event.target.value;
 
+            deleteMarker();
             if(origin == 'São Paulo'){
-                document.getElementById('mapCenter').setAttribute('center', sp);
-                document.getElementById('mapPosition').setAttribute('position', sp);
+                createMarker(sp);
+                centerMap(sp);
             } else if(origin == 'Rio de Janeiro'){
-                document.getElementById('mapCenter').setAttribute('center', rj);
-                document.getElementById('mapPosition').setAttribute('position', rj);
+                createMarker(rj);
+                centerMap(rj);
             } else if (origin == 'Belo Horizonte'){
-                document.getElementById('mapCenter').setAttribute('center', bh);
-                document.getElementById('mapPosition').setAttribute('position', bh);
+                createMarker(bh);
+                centerMap(bh);
             }
         }
 
         function attMapaDestino(event) {
             
-
-            const directionsService = new google.maps.DirectionsService();
-            const directionsRenderer = new google.maps.DirectionsRenderer();
-
             const origin = partida.value;
             const destination = event.target.value;
-
-            alert(origin)
-            alert(destination)
 
             const request = {
                 origin,
