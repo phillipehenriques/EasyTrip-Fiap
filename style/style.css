@@ -93,6 +93,35 @@ input {
     text-align: left;
 }
 
+input[type="date"] {
+    -webkit-input-datetime-format: "dd/MM/yyyy";
+    -moz-input-datetime-format: "dd/MM/yyyy";
+    -ms-input-datetime-format: "dd/MM/yyyy";
+    font-size: 18px;
+    text-align: center;
+}
+
+input[type="checkbox"] {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border: 1px solid black;
+    border-radius: 4px;
+    outline: none;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+input[type="checkbox"]:checked {
+    background-color: var(--cor04);
+}
+
+label {
+    display: flex;
+    align-items: center; /* Alinha o texto verticalmente com o checkbox */
+    font-size: 16px; /* Tamanho da fonte */
+}
+
 main {
     
     display: flex;
@@ -169,8 +198,8 @@ hr {
 }
 
 .botao-easy:hover {
-   color: white;
-   transition: 0.1;
+    color: white;
+    transition: 0.1;
 }
 
 .text {
@@ -212,8 +241,6 @@ hr {
     align-items: center;
     justify-content: center;
     gap: 4px;
-    margin-top: 10px;
-    margin-bottom: 4px;
     font-size: 14px;
 
 }
@@ -316,9 +343,9 @@ hr {
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
-    font-size: 14px;
+    font-size: 16px;
     margin-top: 16px;
-    gap: 6px;
+    gap: 4px;
 }
 
 .formulario {
