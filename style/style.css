@@ -36,6 +36,52 @@
 
 }
 
+.config {
+    position: absolute;
+    padding: 16px;
+    text-align: center;
+    bottom: 0px;
+    right: 10px;
+    background-color: #008000;
+    border-radius: 10px;
+    color: var(--cor10);
+    width: 200px;
+    height: 200px;
+}
+
+.whatsapp {
+    position: absolute;
+    padding: 16px;
+    bottom: 10px;
+    right: 20px;
+    width: 80px;
+    height: auto;
+}
+
+#toggle-button {
+    background: #e6e6e6;
+    color: black;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Adiciona uma transição suave à mudança de cor */
+    
+  }
+  
+.toggleButton.ligado {
+    background-color: #333333;
+    color: white;
+  }
+
+.toggleButton {
+    background: #00a326;
+    color: black;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Adiciona uma transição suave à mudança de cor */
+}
+
 * {
     margin: 0px;
     padding: 0px;   
@@ -66,27 +112,6 @@ body {
     
 }
 
-body > p {
-
-
-}
-
-body > h1 {
-
-}
-
-header {
-
-}
-
-header > h1 {
-    
-}
-
-header > p {
-    
-}
-
 input {
     border-radius: 8px;
     border: none;
@@ -101,6 +126,13 @@ input[type="date"] {
     text-align: center;
 }
 
+.inputClass {
+    margin-top: 10px;
+    height: 30px;
+    width: 180px;
+    border-radius: 8px;
+}
+
 input[type="checkbox"] {
     appearance: none;
     width: 14px;
@@ -112,14 +144,18 @@ input[type="checkbox"] {
     cursor: pointer;
 }
 
+
+
 input[type="checkbox"]:checked {
     background-color: var(--cor04);
 }
 
-label {
-    display: flex;
-    align-items: center; /* Alinha o texto verticalmente com o checkbox */
-    font-size: 16px; /* Tamanho da fonte */
+.labelClass {
+    label {
+        display: flex;
+        align-items: center;
+        font-size: 16px;
+    }
 }
 
 main {
@@ -432,11 +468,6 @@ hr {
     box-shadow: 3px 3px 15px -10px;
 }
 
-.button {
-    background-color: green;
-    color: var(--cor01);
-    width: 50px;
-}
 
 .card {
     position: absolute;
