@@ -85,23 +85,23 @@
                         Filtros de Etinerário
                         <div class="check">
                             <label class>
-                                <input type="checkbox" checked="checked">
+                                <input id="restaurantChkBx" type="checkbox" checked="checked">
                                 Restaurantes
                             </label>
                             <label class>
-                                <input type="checkbox" checked="checked">
+                                <input id="parksChkBx" type="checkbox" checked="checked">
                                 Parques
                             </label>
                             <label class>
-                                <input type="checkbox" checked="checked">
+                                <input id="museumsChkBx" type="checkbox" checked="checked">
                                 Museus
                             </label>
                             <label class>
-                                <input type="checkbox" checked="checked">
+                                <input id="theatherChkBx" type="checkbox" checked="checked">
                                 Teatros
                             </label>
                             <label style="margin-bottom: 20px;" class>
-                                <input type="checkbox" checked="checked">
+                                <input id="cinemaChkBx" type="checkbox" checked="checked">
                                 Cinemas
                             </label>
                         </div>
@@ -130,7 +130,7 @@
             <div>&copy; EasyCarros -Todos os direitos reservados</div>
         </footer>
         <script async
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3vZ-Uuy_HbBrwIMwWdBh8_GLoyb1FCI8&callback=console.debug&libraries=maps,marker,places&v=beta&callback=initMap"
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3vZ-Uuy_HbBrwIMwWdBh8_GLoyb1FCI8&callback=console.debug&libraries=maps,marker,places,geometry&v=beta&callback=initMap"
             async defer>
     </script>
         <script>
@@ -142,16 +142,22 @@
         var map = {};
         var marker = {};
 
+        var distance = {};
         var infowindow = {};
         var directionsService = {};
         var directionsRenderer = {};
 
-        
+        var restaurantChkBx = document.getElementById('restaurantChkBx').checked;
+        var parksChkBx = document.getElementById('parksChkBx').checked;
+        var museumsChkBx = document.getElementById('museumsChkBx').checked;
+        var theatherChkBx = document.getElementById('theatherChkBx').checked;
+        var cinemaChkBx = document.getElementById('cinemaChkBx').checked;
+
         const partida = document.getElementById('selecao-estado-partida');
         const destino = document.getElementById('selecao-estado-destino');
        
-        partida.addEventListener('change', attMapaOrigem)
-        destino.addEventListener('change', attMapaDestino)
+        partida.addEventListener('change', attOriginMap)
+        destino.addEventListener('change', attDestinyMap)
 
         function initMap(){
             infowindow = new google.maps.InfoWindow();
@@ -163,39 +169,128 @@
            });
            directionsRenderer.setMap(map);
 
-            createMarker(rj);
+           createRoute(partida.value, destino.value);
+
+           createMarkersAllTheWayLong();
         }
 
-        function createMarker(state) {
-            const markerPosition = state;
+        function calculateDistance(origin, destiny) {
+            distance = google.maps.geometry.spherical.computeDistanceBetween(
+                getGeoLocByState(origin), 
+                getGeoLocByState(destiny)                
+            );
+        }
+
+        function createMarkersAllTheWayLong() {
+            var markerDistance = 2000;
+            var drawMarkers = true;
+            var newLatLng = getGeoLocByState(partida.value);
+            var endLatLng = getGeoLocByState(destino.value);
+
+            var placesChecked = getCheckedPlaces();
+
+            while (drawMarkers) {
+                var heading = google.maps.geometry.spherical.computeHeading(
+                    newLatLng, 
+                    endLatLng
+                );
+
+                findPlacesNearby(newLatLng, placesChecked);
+
+                var newLatLng = google.maps.geometry.spherical.computeOffset(
+                    newLatLng,
+                    markerDistance, 
+                    heading
+                );
+
+                console.log(newLatLng.lat(), newLatLng.lng());
+
+                var newDistance = google.maps.geometry.spherical.computeDistanceBetween(
+                    newLatLng, 
+                    endLatLng
+                );
+
+                if (newDistance <= markerDistance) drawMarkers = false;
+            }
+            
+        }
+
+        function getCheckedPlaces(){
+            var places = [];
+
+            if (restaurantChkBx) {
+                places.push('restaurant');
+            }
+            if (parksChkBx) {
+                places.push('park');
+            }
+            if (museumsChkBx) {
+                places.push('museum');
+            }
+            if (theatherChkBx) {
+                places.push('theather');
+            }
+            if (cinemaChkBx) {
+                places.push('cinema');
+            }
+
+            return places;
+        }
+
+        function createRoute(origin, destiny) {
+            const request = {
+                origin: origin,
+                destination: destiny,
+                travelMode: 'DRIVING'
+            };
+
+            directionsService.route(request, function(result, status) {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+                }
+            });
+
+            calculateDistance(origin, destiny);
+        }
+
+        function createMarker(position) {
             marker = new google.maps.Marker({
-                position: markerPosition,
+                position: position,
                 map: map,
             });
         }
 
-        function deleteMarker() {
+        function deleteAllMarkers() {
             marker.setMap(null);
         }
 
-        function centerMap(state){
+        function centerMap(state) {
             map.panTo(new google.maps.LatLng(state['lat'], state['lng']));
         }
 
-        function findPlacesNearby(state){
+        function findPlacesNearby(loc, places) {
             service = new google.maps.places.PlacesService(map);
 
             var request = {
-                location: new google.maps.LatLng(state['lat'], state['lng']),
-                radius: '1000',
-                type: ['restaurant']
+                location: new google.maps.LatLng(loc),
+                radius: '500',
+                type: [ 'restaurant' ]
             };
-            deleteMarker();
-            service.nearbySearch(request, (results, status) => {
+            
+            service.nearbySearch(request, (results, status, pagination) => {
                 if (status == google.maps.places.PlacesServiceStatus.OK) {
-                    for (var i = 0; i < results.length; i++) {
-                        createPlace(results[i]);
+                    var listOfPlaces = [];
+                    var keepAdding = true;
+                    
+                    while (keepAdding) {
+                        for (var i = 0; i < places.length; i++) {
+                            createPlace(results[i]);
+                        }
+
+                        if (pagination && pagination.hasNextPage) results = pagination.nextPage();
+                        else  keepAdding = false;
                     }
+
                 } else {
                     console.log('Erro ao buscar lugares: ' + status);
                 }
@@ -204,10 +299,12 @@
 
         function createPlace(place) {
             console.log('criando lugares: ' + place.name);
+
             if (!place.geometry || !place.geometry.location) return;
 
             const marker = new google.maps.Marker({
                 map,
+                title: place.name,
                 position: place.geometry.location,
                 fields: ["name", "geometry"]
             });
@@ -228,47 +325,29 @@
             }
         }
 
-        function attMapaOrigem(event){
+        function attOriginMap(event){
             var origin = event.target.value;
+            var destiny = destino.value;
 
-            deleteMarker();
-            geoLoc = getGeoLocByState(origin);
-
-            if (geoLoc !== null) {
-                createMarker(geoLoc);
-                centerMap(geoLoc);
-            }
+            createRoute(origin, destiny);
         }
 
-        function attMapaDestino(event) {
-            
-            const origin = partida.value;
-            const destination = event.target.value;
+        function attDestinyMap(event) {
+            var origin = partida.value;
+            var destiny = event.target.value;
 
-            geoLoc = getGeoLocByState(destination);
-
-            const request = {
-                origin,
-                destination,
-                travelMode: 'DRIVING'
-            };
-
-            directionsService.route(request, function(result, status) {
-                if (status === 'OK') {
-                    directionsRenderer.setDirections(result);
-                }
-            });
-
-            findPlacesNearby(geoLoc);
+            createRoute(origin, destiny);
         }
     
     </script>
     </body>
 </html>
 
+// (x) Iniciar mapa com a rota projetada
+// (x) Limpar todas os lugares ao mudar de Rota
+// ( ) Adicionar lugares em todo o trajeto
+// ( ) Abrir a janelinha de informação do lugar
+// ( ) Selecionar lugares de acordo com as checkbox
+// (x) Fazer o attOriginMap atualizar a rota
 
-// Limpar todas os lugares ao mudar de Rota
-// Adicionar lugares em todo o trajeto
-// Abrir a janelinha de informação do lugar
-// Selecionar lugares de acordo com as checkbox
-// Fazer o attMapaOrigem atualizar a rota 
+AIzaSyC3vZ-Uuy_HbBrwIMwWdBh8_GLoyb1FCI8
