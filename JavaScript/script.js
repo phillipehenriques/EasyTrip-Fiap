@@ -3,7 +3,7 @@ var sp = { lat: -23.5449796, lng: -46.6486327 };
 var bh = { lat: -19.9025359, lng: -44.0464509 };
 
 var map = {};
-var marker = {};
+var markers = [];
 
 var distance = {};
 var infowindow = {};
@@ -55,17 +55,17 @@ function createRoute(origin, destiny) {
       directionsRenderer.setDirections(result);
       waypoints = decode(result.routes[0].overview_polyline);
 
-    //   const PolygonCoords = PolygonPoints();
-    //   const PolygonBound = new google.maps.Polygon({
-    //     paths: PolygonCoords,
-    //     strokeColor: "#FF0000",
-    //     strokeOpacity: 0.8,
-    //     strokeWeight: 2,
-    //     fillColor: "#FF0000",
-    //     fillOpacity: 0.35,
-    //   });
+      //   const PolygonCoords = PolygonPoints();
+      //   const PolygonBound = new google.maps.Polygon({
+      //     paths: PolygonCoords,
+      //     strokeColor: "#FF0000",
+      //     strokeOpacity: 0.8,
+      //     strokeWeight: 2,
+      //     fillColor: "#FF0000",
+      //     fillOpacity: 0.35,
+      //   });
 
-    //   PolygonBound.setMap(map);
+      //   PolygonBound.setMap(map);
     }
   });
 
@@ -123,7 +123,7 @@ function findPlacesNearby(places) {
     service.nearbySearch(request, (results, status) => {
       if (status == google.maps.places.PlacesServiceStatus.OK) {
         for (var i = 0; i < places.length; i++) {
-        createPlace(results[i]);
+          createPlace(results[i]);
         }
       } else {
         console.log("Erro ao buscar lugares: " + status);
@@ -154,15 +154,12 @@ function getCheckedPlaces() {
   return places;
 }
 
-function createMarker(position) {
-  marker = new google.maps.Marker({
-    position: position,
-    map: map,
-  });
-}
-
 function deleteAllMarkers() {
-  marker.setMap(null);
+  console.log("apagando tudo");
+  for (var i = 0; i < markers.length; i++) {
+    markers[i].setMap(null);
+  }
+  markers = [];
 }
 
 function centerMap(state) {
@@ -174,12 +171,14 @@ function createPlace(place) {
 
   if (!place.geometry || !place.geometry.location) return;
 
-  marker = new google.maps.Marker({
+  const marker = new google.maps.Marker({
     map,
     title: place.name,
     position: place.geometry.location,
     fields: ["name", "geometry"],
   });
+
+  markers.push(marker);
 
   google.maps.event.addListener(marker, "click", () => {
     infowindow.setContent(place.name || "");
@@ -202,6 +201,11 @@ function attOriginMap(event) {
   var destiny = destino.value;
 
   createRoute(origin, destiny);
+  deleteAllMarkers();
+
+  setTimeout(() => {
+    createMarkersAllTheWayLong();
+  }, 2000);
 }
 
 function attDestinyMap(event) {
@@ -209,6 +213,11 @@ function attDestinyMap(event) {
   var destiny = event.target.value;
 
   createRoute(origin, destiny);
+  deleteAllMarkers();
+
+  setTimeout(() => {
+    createMarkersAllTheWayLong();
+  }, 2000);
 }
 
 function PolygonArray(latitude) {
