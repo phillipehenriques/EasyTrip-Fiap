@@ -117,7 +117,7 @@ function findPlacesNearby(places) {
     var request = {
       location: new google.maps.LatLng(waypoints[j][0], waypoints[j][1]),
       radius: "200",
-      type: ["restaurant"],
+      type: places,
     };
 
     service.nearbySearch(request, (results, status) => {
