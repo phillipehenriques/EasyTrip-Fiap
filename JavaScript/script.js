@@ -39,7 +39,7 @@ function initMap() {
   createRoute(partida.value, destino.value);
 
   setTimeout(() => {
-    createMarkersAllTheWayLong();
+    // createMarkersAllTheWayLong();
   }, 2000);
 }
 
@@ -204,7 +204,7 @@ function attOriginMap(event) {
   deleteAllMarkers();
 
   setTimeout(() => {
-    createMarkersAllTheWayLong();
+    // createMarkersAllTheWayLong();
   }, 2000);
 }
 
@@ -216,7 +216,7 @@ function attDestinyMap(event) {
   deleteAllMarkers();
 
   setTimeout(() => {
-    createMarkersAllTheWayLong();
+    // createMarkersAllTheWayLong();
   }, 2000);
 }
 
